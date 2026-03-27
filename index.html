@@ -25,28 +25,40 @@
   .b-wa{background:#04342C;color:#9FE1CB}.b-mail{background:#042C53;color:#B5D4F4}.b-tel{background:#412402;color:#FAC775}.b-voce{background:#26215C;color:#AFA9EC}
   .b-tec{background:#501313;color:#F7C1C1}.b-com{background:#412402;color:#FAC775}.b-amm{background:#173404;color:#C0DD97}
   .b-new{background:#501313;color:#F7C1C1}.b-open{background:#412402;color:#FAC775}.b-done{background:#173404;color:#C0DD97}
+  .b-outlook{background:#042C53;color:#85B7EB}
   .error-bar{background:#501313;border-color:#791F1F;color:#F7C1C1}
 }
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-t);color:var(--tx-p)}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 
 /* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));border-bottom:0.5px solid var(--bd-t);background:var(--bg-p);gap:10px;flex-shrink:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));border-bottom:0.5px solid var(--bd-t);background:var(--bg-p);gap:10px;flex-shrink:0;flex-wrap:wrap}
 .topbar-left{display:flex;flex-direction:column;gap:3px}
 .topbar-title{font-size:17px;font-weight:600;color:var(--tx-p);letter-spacing:-.3px}
 .sync-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx-s)}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:#27ae60;flex-shrink:0}
 .sync-dot.syncing{background:#f5a623;animation:pulse 1s infinite}
+.sync-dot.offline{background:#ccc}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tabs{display:flex;background:var(--bg-s);border-radius:var(--r-md);padding:2px;gap:2px}
 .tab{padding:7px 16px;border-radius:6px;font-size:14px;cursor:pointer;border:none;background:transparent;color:var(--tx-s);transition:all .15s;white-space:nowrap;font-weight:400}
 .tab.active{background:var(--bg-p);color:var(--tx-p);font-weight:500;box-shadow:0 0 0 0.5px var(--bd-t)}
 
+/* OUTLOOK BAR */
+.outlook-bar{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:0.5px solid var(--bd-t);background:var(--bg-p);gap:8px;flex-wrap:wrap;flex-shrink:0}
+.outlook-status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--tx-s)}
+.ol-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0}
+.ol-dot.connected{background:#27ae60}
+.ol-dot.syncing{background:#f5a623;animation:pulse 1s infinite}
+.ol-user{font-size:12px;color:var(--tx-p);font-weight:500}
+.btn-ms{background:#0078D4;color:#fff;border-color:#0078D4;display:flex;align-items:center;gap:6px}
+.btn-ms:hover{background:#005a9e}
+
 /* FILTER BAR */
 .filter-bar{padding:10px 16px;border-bottom:0.5px solid var(--bd-t);background:var(--bg-p);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
 .filter-bar::-webkit-scrollbar{display:none}
-.chip{padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;border:0.5px solid var(--bd-t);background:transparent;color:var(--tx-s);white-space:nowrap;display:flex;align-items:center;gap:5px;font-weight:400}
+.chip{padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;border:0.5px solid var(--bd-t);background:transparent;color:var(--tx-s);white-space:nowrap;display:flex;align-items:center;gap:5px}
 .chip.active{background:var(--tx-p);color:var(--bg-p);border-color:var(--tx-p)}
 .chip-count{font-size:11px;opacity:.65}
 
@@ -62,7 +74,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .sidebar{width:200px;border-right:0.5px solid var(--bd-t);padding:14px 12px;display:flex;flex-direction:column;gap:4px;background:var(--bg-p);overflow-y:auto;flex-shrink:0}
 .content{flex:1;padding:16px;overflow-y:auto}
 
-/* SIDEBAR FILTERS */
+/* SIDEBAR */
 .sec-title{font-size:10px;font-weight:600;color:var(--tx-s);text-transform:uppercase;letter-spacing:.07em;margin:14px 0 6px;padding:0 8px}
 .sec-title:first-child{margin-top:0}
 .sb-btn{width:100%;text-align:left;padding:9px 10px;border-radius:var(--r-md);font-size:14px;cursor:pointer;border:none;background:transparent;color:var(--tx-s);display:flex;justify-content:space-between;align-items:center;transition:all .15s}
@@ -87,8 +99,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .b-wa{background:#E1F5EE;color:#0F6E56}.b-mail{background:#E6F1FB;color:#185FA5}.b-tel{background:#FAEEDA;color:#854F0B}.b-voce{background:#EEEDFE;color:#534AB7}
 .b-tec{background:#FCEBEB;color:#A32D2D}.b-com{background:#FAEEDA;color:#854F0B}.b-amm{background:#EAF3DE;color:#3B6D11}
 .b-new{background:#FCEBEB;color:#A32D2D}.b-open{background:#FAEEDA;color:#854F0B}.b-done{background:#EAF3DE;color:#3B6D11}
+.b-outlook{background:#E6F1FB;color:#0078D4}
 
-/* DETAIL PANEL */
+/* DETAIL */
 .detail-panel{background:var(--bg-s);border-radius:var(--r-lg);padding:14px;margin-top:12px}
 .detail-note{font-size:14px;color:var(--tx-s);margin-bottom:12px;line-height:1.6}
 .det-actions{display:flex;flex-wrap:wrap;gap:8px}
@@ -100,7 +113,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 @keyframes spin{to{transform:rotate(360deg)}}
 .error-bar{background:#FCEBEB;border:0.5px solid #F09595;border-radius:var(--r-lg);padding:12px 16px;font-size:13px;color:#A32D2D;margin-bottom:14px;line-height:1.6}
 
-/* MODAL — sheet on mobile, centered on desktop */
+/* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:999}
 .modal{background:var(--bg-p);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + var(--safe-bottom));width:100%;max-width:520px;border-top:0.5px solid var(--bd-t);max-height:92vh;overflow-y:auto}
 .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--bd-s);margin:0 auto 18px}
@@ -130,10 +143,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 .ev-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-p);border:0.5px solid var(--bd-t);border-radius:var(--r-xl);margin-bottom:10px}
 .ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .ev-time{font-size:13px;color:var(--tx-s);min-width:38px;font-weight:500}
-.ev-title{font-size:15px;color:var(--tx-p);flex:1;font-weight:400}
+.ev-body{flex:1;min-width:0}
+.ev-title{font-size:15px;color:var(--tx-p);font-weight:400}
+.ev-sub{font-size:11px;color:var(--tx-s);margin-top:2px}
 .color-picker{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 .color-swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;transition:transform .1s}
 .color-swatch:active{transform:scale(.9)}
+.legend{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx-s)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
 
 /* RESPONSIVE */
 @media(min-width:640px){
@@ -154,9 +172,17 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sa
 </head>
 <body>
 <div class="app" id="app"></div>
+
+<!-- MSAL -->
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.27.0/lib/msal-browser.min.js"></script>
+
 <script>
 const SUPABASE_URL='https://nfelkmjfkzuzmsnnhjhp.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mZWxrbWpma3p1em1zbm5oamhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTUxMDYsImV4cCI6MjA5MDE5MTEwNn0.a-NeddQ-YBAJnApvFtKQDRBanDMePpNwQB4aLP8rros';
+const MS_CLIENT_ID='cd5e7129-8698-4f9c-b3df-cc370adb8f92';
+const MS_TENANT_ID='a61c7a83-1089-40d1-b920-f4af10ffaeef';
+const MS_SCOPES=['Calendars.Read','User.Read'];
+const REDIRECT_URI='https://enricobardi.github.io/assistenza-app/';
 const TODAY=new Date().toISOString().slice(0,10);
 const CANALE={wa:'WhatsApp',mail:'Email',tel:'Tel',voce:'Voce'};
 const TIPO={tec:'Tecnico',com:'Commerciale',amm:'Amministrativo'};
@@ -167,9 +193,87 @@ const S={
   view:'tickets',filter:'all',selTicket:null,
   calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),
   selDate:TODAY,modal:null,modalTicket:null,
-  tickets:[],events:[],loading:true,syncing:false,error:null
+  tickets:[],events:[],outlookEvents:[],
+  loading:true,syncing:false,error:null,
+  msReady:false,msUser:null,msSyncing:false,msError:null
 };
 
+// ── MSAL ────────────────────────────────────────────────
+let msalApp=null;
+async function initMsal(){
+  msalApp=new msal.PublicClientApplication({
+    auth:{clientId:MS_CLIENT_ID,authority:`https://login.microsoftonline.com/${MS_TENANT_ID}`,redirectUri:REDIRECT_URI},
+    cache:{cacheLocation:'localStorage',storeAuthStateInCookie:true}
+  });
+  await msalApp.initialize();
+  // handle redirect response (after login redirect)
+  const resp=await msalApp.handleRedirectPromise();
+  if(resp&&resp.account){
+    S.msUser=resp.account.username;
+    S.msReady=true;
+    fetchOutlookEvents();
+  } else {
+    const accounts=msalApp.getAllAccounts();
+    if(accounts.length){S.msUser=accounts[0].username;S.msReady=true;fetchOutlookEvents();}
+  }
+  render();
+}
+
+async function msLogin(){
+  if(!msalApp)return;
+  try{
+    // try popup first, fall back to redirect
+    const resp=await msalApp.loginPopup({scopes:MS_SCOPES});
+    S.msUser=resp.account.username;S.msReady=true;
+    fetchOutlookEvents();
+  }catch(e){
+    if(e.errorCode==='popup_window_error'||e.errorCode==='empty_window_error'){
+      msalApp.loginRedirect({scopes:MS_SCOPES});
+    } else {
+      S.msError='Errore login: '+e.message;render();
+    }
+  }
+}
+
+async function msLogout(){
+  S.msUser=null;S.msReady=false;S.outlookEvents=[];S.msError=null;
+  if(msalApp){try{await msalApp.logoutPopup();}catch(e){}}
+  render();
+}
+
+async function fetchOutlookEvents(){
+  if(!msalApp||!S.msReady)return;
+  const accounts=msalApp.getAllAccounts();
+  if(!accounts.length)return;
+  S.msSyncing=true;render();
+  try{
+    const token=await msalApp.acquireTokenSilent({scopes:MS_SCOPES,account:accounts[0]});
+    const start=new Date(S.calYear,S.calMonth,1).toISOString();
+    const end=new Date(S.calYear,S.calMonth+1,0,23,59,59).toISOString();
+    const r=await fetch(
+      `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${start}&endDateTime=${end}&$select=subject,start,end,location,bodyPreview&$top=100&$orderby=start/dateTime`,
+      {headers:{Authorization:'Bearer '+token.accessToken}}
+    );
+    const data=await r.json();
+    S.outlookEvents=(data.value||[]).map((ev,i)=>{
+      const isAllDay=!ev.start.dateTime;
+      const dt=new Date(ev.start.dateTime||ev.start.date);
+      const date=isAllDay?ev.start.date:dt.toISOString().slice(0,10);
+      const time=isAllDay?'':dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      return {id:'ol_'+i,title:ev.subject||'(senza titolo)',date,time,location:ev.location?.displayName||'',source:'outlook'};
+    });
+    S.msError=null;
+  }catch(e){
+    // try interactive if silent fails
+    try{
+      const token=await msalApp.acquireTokenPopup({scopes:MS_SCOPES});
+      S.msSyncing=false;fetchOutlookEvents();return;
+    }catch(e2){S.msError='Errore sync Outlook: '+e2.message;}
+  }
+  S.msSyncing=false;render();
+}
+
+// ── SUPABASE ─────────────────────────────────────────────
 async function sbGet(t){
   const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?select=*&order=id.asc`,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
   if(!r.ok)throw new Error(await r.text());
@@ -209,11 +313,12 @@ async function loadAll(){
     const [tickets,events]=await Promise.all([sbGet('tickets'),sbGet('events')]);
     S.tickets=tickets||[];S.events=events||[];S.error=null;
   }catch(e){
-    S.error='Errore connessione Supabase. Verifica che RLS sia disabilitato sulle tabelle tickets ed events.';
+    S.error='Errore connessione Supabase: '+e.message;
   }
   S.loading=false;S.syncing=false;render();
 }
 
+// ── DOM HELPER ───────────────────────────────────────────
 function el(tag,props,...kids){
   const e=document.createElement(tag);
   for(const[k,v]of Object.entries(props||{})){
@@ -230,9 +335,11 @@ function render(){
   document.getElementById('app').appendChild(buildApp());
 }
 
+// ── BUILD ────────────────────────────────────────────────
 function buildApp(){
   const w=el('div',{});
   w.appendChild(buildTopbar());
+  w.appendChild(buildOutlookBar());
   if(S.view==='tickets')w.appendChild(buildFilterBar());
   const main=el('div',{className:'main'});
   if(S.view==='tickets'){main.appendChild(buildSidebar());main.appendChild(buildTickets());}
@@ -247,8 +354,8 @@ function buildTopbar(){
   const left=el('div',{className:'topbar-left'});
   left.appendChild(el('div',{className:'topbar-title'},'Assistenza & Calendario'));
   const sr=el('div',{className:'sync-row'});
-  sr.appendChild(el('div',{className:'sync-dot'+(S.syncing?' syncing':'')}));
-  sr.appendChild(document.createTextNode(S.syncing?'Sincronizzazione...':'Sincronizzato'));
+  sr.appendChild(el('div',{className:'sync-dot'+(S.syncing?' syncing':S.loading?' offline':'')}));
+  sr.appendChild(document.createTextNode(S.syncing?'Sincronizzazione...':S.loading?'Connessione...':'Sincronizzato'));
   left.appendChild(sr);
   b.appendChild(left);
   const right=el('div',{className:'topbar-right'});
@@ -260,6 +367,44 @@ function buildTopbar(){
   right.appendChild(el('button',{className:'btn btn-primary btn-sm',onClick:()=>{S.modal=S.view==='tickets'?'newTicket':'newEvent';render()}},'+ Nuovo'));
   b.appendChild(right);
   return b;
+}
+
+function buildOutlookBar(){
+  const bar=el('div',{className:'outlook-bar'});
+  const left=el('div',{className:'outlook-status'});
+  const dot=el('div',{className:'ol-dot'+(S.msReady?' connected':S.msSyncing?' syncing':'')});
+  left.appendChild(dot);
+  if(S.msReady&&S.msUser){
+    left.appendChild(el('span',{className:'ol-user'},S.msUser));
+    if(S.msSyncing)left.appendChild(document.createTextNode(' — Sincronizzazione Outlook...'));
+  } else {
+    left.appendChild(document.createTextNode('Outlook non connesso'));
+  }
+  bar.appendChild(left);
+  const right=el('div',{style:'display:flex;gap:6px;align-items:center'});
+  if(S.msError){
+    const err=el('span',{style:'font-size:11px;color:#A32D2D;max-width:200px;text-align:right'},S.msError);
+    right.appendChild(err);
+  }
+  if(S.msReady){
+    right.appendChild(el('button',{className:'btn btn-sm',style:'font-size:11px',onClick:()=>{S.calMonth=new Date().getMonth();S.calYear=new Date().getFullYear();fetchOutlookEvents();}},'↺ Aggiorna'));
+    right.appendChild(el('button',{className:'btn btn-sm',style:'font-size:11px',onClick:msLogout},'Disconnetti'));
+  } else {
+    right.appendChild(el('button',{className:'btn btn-ms btn-sm',onClick:msLogin},buildMsLogo(),'Connetti Outlook'));
+  }
+  bar.appendChild(right);
+  return bar;
+}
+
+function buildMsLogo(){
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('width','14');s.setAttribute('height','14');s.setAttribute('viewBox','0 0 21 21');
+  [['#F25022',0,0],['#7FBA00',11,0],['#00A4EF',0,11],['#FFB900',11,11]].forEach(([fill,x,y])=>{
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('fill',fill);r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',10);r.setAttribute('height',10);
+    s.appendChild(r);
+  });
+  return s;
 }
 
 function buildFilterBar(){
@@ -278,22 +423,19 @@ function buildSidebar(){
   [['all','Tutti'],['new','Nuovi'],['open','Aperti'],['done','Chiusi']].forEach(([v,l])=>{
     const cnt=v==='all'?S.tickets.length:S.tickets.filter(t=>t.stato===v).length;
     const b=el('button',{className:'sb-btn'+(S.filter===v?' active':''),onClick:()=>{S.filter=v;render()}},l);
-    b.appendChild(el('span',{className:'sb-count'},String(cnt)));
-    s.appendChild(b);
+    b.appendChild(el('span',{className:'sb-count'},String(cnt)));s.appendChild(b);
   });
   s.appendChild(el('div',{className:'sec-title'},'Canale'));
   [['wa','WhatsApp'],['mail','Email'],['tel','Telefono'],['voce','Voce']].forEach(([v,l])=>{
     const cnt=S.tickets.filter(t=>t.canale===v).length;
     const b=el('button',{className:'sb-btn'+(S.filter===v?' active':''),onClick:()=>{S.filter=v;render()}},l);
-    b.appendChild(el('span',{className:'sb-count'},String(cnt)));
-    s.appendChild(b);
+    b.appendChild(el('span',{className:'sb-count'},String(cnt)));s.appendChild(b);
   });
   s.appendChild(el('div',{className:'sec-title'},'Priorità'));
   ['urgente','normale','bassa'].forEach(v=>{
     const cnt=S.tickets.filter(t=>t.priorita===v).length;
     const b=el('button',{className:'sb-btn'+(S.filter===v?' active':''),onClick:()=>{S.filter=v;render()}},v[0].toUpperCase()+v.slice(1));
-    b.appendChild(el('span',{className:'sb-count'},String(cnt)));
-    s.appendChild(b);
+    b.appendChild(el('span',{className:'sb-count'},String(cnt)));s.appendChild(b);
   });
   return s;
 }
@@ -304,10 +446,7 @@ function buildTickets(){
   if(S.loading){const l=el('div',{className:'loading'});l.appendChild(el('div',{className:'spinner'}));l.appendChild(document.createTextNode('Caricamento...'));c.appendChild(l);return c;}
   const stats=el('div',{className:'stats'});
   [['Nuovi',S.tickets.filter(t=>t.stato==='new').length],['Aperti',S.tickets.filter(t=>t.stato==='open').length],['Chiusi',S.tickets.filter(t=>t.stato==='done').length],['Urgenti',S.tickets.filter(t=>t.priorita==='urgente').length]].forEach(([l,n])=>{
-    const sc=el('div',{className:'stat'});
-    sc.appendChild(el('div',{className:'stat-n'},String(n)));
-    sc.appendChild(el('div',{className:'stat-l'},l));
-    stats.appendChild(sc);
+    const sc=el('div',{className:'stat'});sc.appendChild(el('div',{className:'stat-n'},String(n)));sc.appendChild(el('div',{className:'stat-l'},l));stats.appendChild(sc);
   });
   c.appendChild(stats);
   let filtered=[...S.tickets];
@@ -334,8 +473,7 @@ function buildTickets(){
       if(t.stato==='done')acts.appendChild(el('button',{className:'btn btn-sm',onClick:async()=>{await sbUpdate('tickets',t.id,{stato:'open'});loadAll();}},'Riapri'));
       acts.appendChild(el('button',{className:'btn btn-sm',onClick:()=>{S.modal='newEventFromTicket';S.modalTicket=t;render();}},'+ Calendario'));
       acts.appendChild(el('button',{className:'btn btn-sm btn-danger',onClick:async()=>{if(confirm('Eliminare questo ticket?')){await sbDelete('tickets',t.id);S.selTicket=null;loadAll();}}},'Elimina'));
-      dp.appendChild(acts);
-      card.appendChild(dp);
+      dp.appendChild(acts);card.appendChild(dp);
     }
     c.appendChild(card);
   });
@@ -348,9 +486,9 @@ function buildCalendar(){
   const wrap=el('div',{className:'cal-wrap'});
   const calCard=el('div',{className:'cal-card'});
   const nav=el('div',{className:'cal-nav'});
-  nav.appendChild(el('button',{className:'btn btn-sm',onClick:()=>{S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--}render();}},'‹'));
+  nav.appendChild(el('button',{className:'btn btn-sm',onClick:()=>{S.calMonth--;if(S.calMonth<0){S.calMonth=11;S.calYear--}S.outlookEvents=[];fetchOutlookEvents();render();}},'‹'));
   nav.appendChild(el('span',{},MONTHS[S.calMonth]+' '+S.calYear));
-  nav.appendChild(el('button',{className:'btn btn-sm',onClick:()=>{S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++}render();}},'›'));
+  nav.appendChild(el('button',{className:'btn btn-sm',onClick:()=>{S.calMonth++;if(S.calMonth>11){S.calMonth=0;S.calYear++}S.outlookEvents=[];fetchOutlookEvents();render();}},'›'));
   calCard.appendChild(nav);
   const hdr=el('div',{className:'cal-hdr'});
   ['Lu','Ma','Me','Gi','Ve','Sa','Do'].forEach(d=>hdr.appendChild(el('div',{className:'cal-hday'},d)));
@@ -358,25 +496,47 @@ function buildCalendar(){
   const grid=el('div',{className:'cal-grid'});
   const offset=(new Date(S.calYear,S.calMonth,1).getDay()+6)%7;
   const dim=new Date(S.calYear,S.calMonth+1,0).getDate();
+  const allDates=[...S.events,...S.outlookEvents].map(e=>e.date);
   for(let i=0;i<offset;i++)grid.appendChild(el('div',{}));
   for(let d=1;d<=dim;d++){
     const ds=S.calYear+'-'+String(S.calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const isToday=ds===TODAY,isSel=ds===S.selDate,hasEv=S.events.some(e=>e.date===ds);
+    const isToday=ds===TODAY,isSel=ds===S.selDate,hasEv=allDates.includes(ds);
     grid.appendChild(el('div',{className:'cal-day'+(isToday?' today':isSel&&!isToday?' sel':'')+(hasEv?' has-ev':''),onClick:()=>{S.selDate=ds;render();}},String(d)));
   }
   calCard.appendChild(grid);
+  // legend
+  const leg=el('div',{className:'legend'});
+  [['#E24B4A','Locali'],['#0078D4','Outlook']].forEach(([col,lbl])=>{
+    const item=el('div',{className:'legend-item'});
+    item.appendChild(el('div',{className:'legend-dot',style:'background:'+col}));
+    item.appendChild(document.createTextNode(lbl));
+    leg.appendChild(item);
+  });
+  calCard.appendChild(leg);
   wrap.appendChild(calCard);
+
   const right=el('div',{className:'cal-right'});
   const dateLabel=S.selDate?S.selDate.split('-').reverse().join('/'):'';
   right.appendChild(el('div',{className:'sec-title',style:'margin-bottom:12px'},dateLabel));
-  const evts=S.events.filter(e=>e.date===S.selDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  if(evts.length===0)right.appendChild(el('div',{className:'empty',style:'padding:24px 0;text-align:left'},'Nessun evento per questa data.'));
-  evts.forEach(ev=>{
+  const localEvts=S.events.filter(e=>e.date===S.selDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const outEvts=S.outlookEvents.filter(e=>e.date===S.selDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const combined=[...localEvts,...outEvts].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  if(combined.length===0)right.appendChild(el('div',{className:'empty',style:'padding:24px 0;text-align:left'},'Nessun evento per questa data.'));
+  combined.forEach(ev=>{
+    const isOutlook=ev.source==='outlook';
     const row=el('div',{className:'ev-item'});
-    row.appendChild(el('div',{className:'ev-dot',style:'background:'+(ev.color||'#185FA5')}));
-    row.appendChild(el('div',{className:'ev-time'},ev.time||''));
-    row.appendChild(el('div',{className:'ev-title'},ev.title));
-    row.appendChild(el('button',{className:'btn btn-sm',onClick:async()=>{if(confirm('Eliminare questo evento?')){await sbDelete('events',ev.id);loadAll();}}},'×'));
+    row.appendChild(el('div',{className:'ev-dot',style:'background:'+(isOutlook?'#0078D4':ev.color||'#185FA5')}));
+    row.appendChild(el('div',{className:'ev-time'},ev.time||'tutto il giorno'));
+    const body=el('div',{className:'ev-body'});
+    body.appendChild(el('div',{className:'ev-title'},ev.title));
+    if(isOutlook){
+      const sub=el('div',{className:'ev-sub'});
+      sub.appendChild(el('span',{className:'badge b-outlook',style:'font-size:10px;padding:2px 7px'},'Outlook'));
+      if(ev.location)sub.appendChild(document.createTextNode(' '+ev.location));
+      body.appendChild(sub);
+    }
+    row.appendChild(body);
+    if(!isOutlook)row.appendChild(el('button',{className:'btn btn-sm',style:'flex-shrink:0',onClick:async()=>{if(confirm('Eliminare questo evento?')){await sbDelete('events',ev.id);loadAll();}}},'×'));
     right.appendChild(row);
   });
   wrap.appendChild(right);
@@ -422,8 +582,7 @@ function buildTicketForm(f,onSave,onCancel){
   const acts=el('div',{className:'form-actions'});
   acts.appendChild(el('button',{className:'btn',onClick:onCancel},'Annulla'));
   acts.appendChild(el('button',{className:'btn btn-primary',onClick:onSave},'Salva ticket'));
-  w.appendChild(acts);
-  return w;
+  w.appendChild(acts);return w;
 }
 
 function buildEventForm(f,onSave,onCancel){
@@ -441,12 +600,13 @@ function buildEventForm(f,onSave,onCancel){
   const acts=el('div',{className:'form-actions'});
   acts.appendChild(el('button',{className:'btn',onClick:onCancel},'Annulla'));
   acts.appendChild(el('button',{className:'btn btn-primary',onClick:onSave},'Salva evento'));
-  w.appendChild(acts);
-  return w;
+  w.appendChild(acts);return w;
 }
 
+// ── INIT ─────────────────────────────────────────────────
 loadAll();
 subscribeRealtime();
+initMsal();
 </script>
 </body>
 </html>
