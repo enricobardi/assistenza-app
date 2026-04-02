@@ -27,9 +27,65 @@
   .b-new{background:#501313;color:#F7C1C1}.b-open{background:#412402;color:#FAC775}.b-done{background:#173404;color:#C0DD97}
   .b-outlook{background:#042C53;color:#85B7EB}
   .error-bar{background:#501313;border-color:#791F1F;color:#F7C1C1}
+  .pin-screen{background:#1c1c1a}
+  .pin-dot.filled{background:#f0efed}
+  .pin-dot{border-color:rgba(255,255,255,0.3)}
+  .pin-key{background:#2a2a27;color:#f0efed;border-color:rgba(255,255,255,0.1)}
+  .pin-key:active{background:#3a3a37}
+  .pin-key.del{background:#501313;color:#F7C1C1}
 }
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg-t);color:var(--tx-p)}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* ── PIN SCREEN ────────────────────────────────── */
+.pin-screen{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#f5f5f4;
+  padding:32px 24px calc(32px + var(--safe-bottom));
+  gap:0;
+}
+.pin-logo{
+  font-size:36px;margin-bottom:8px;
+}
+.pin-title{font-size:22px;font-weight:600;color:var(--tx-p);margin-bottom:4px;text-align:center}
+.pin-sub{font-size:14px;color:var(--tx-s);margin-bottom:36px;text-align:center}
+.pin-dots{display:flex;gap:14px;margin-bottom:40px}
+.pin-dot{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(0,0,0,0.25);
+  background:transparent;
+  transition:all .15s;
+}
+.pin-dot.filled{background:var(--tx-p);border-color:var(--tx-p);transform:scale(1.1)}
+.pin-dot.shake{animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.pin-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;width:100%;max-width:280px;
+}
+.pin-key{
+  aspect-ratio:1;border-radius:var(--r-xl);
+  font-size:24px;font-weight:400;
+  border:0.5px solid rgba(0,0,0,0.12);
+  background:#fff;color:var(--tx-p);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .1s;
+  user-select:none;
+}
+.pin-key:active{opacity:.6;transform:scale(.93)}
+.pin-key.del{background:#FCEBEB;color:#A32D2D;font-size:20px;border-color:rgba(163,45,45,0.15)}
+.pin-key.zero{grid-column:2}
+.pin-error{font-size:13px;color:#A32D2D;margin-top:16px;min-height:20px;text-align:center}
+.pin-setup-note{font-size:12px;color:var(--tx-s);margin-top:20px;text-align:center;line-height:1.6}
+
+/* ── CHANGE PIN MODAL ─────────────────────────── */
+.change-pin-wrap{display:flex;flex-direction:column;gap:4px;align-items:center}
+.change-pin-dots{display:flex;gap:10px;margin:10px 0 18px}
+.change-pin-dots .pin-dot{width:13px;height:13px}
+.change-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:240px}
+.change-pin-grid .pin-key{font-size:20px;border-radius:var(--r-lg)}
 
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));border-bottom:0.5px solid var(--bd-t);background:var(--bg-p);gap:10px;flex-shrink:0;flex-wrap:wrap}
@@ -189,6 +245,221 @@ const TIPO={tec:'Tecnico',com:'Commerciale',amm:'Amministrativo'};
 const STATO={new:'Nuovo',open:'Aperto',done:'Chiuso'};
 const MONTHS=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 
+// ── PIN AUTH ─────────────────────────────────────────────
+const PIN_KEY='assistenza_pin';
+const PIN_UNLOCKED_KEY='assistenza_unlocked';
+const SESSION_DURATION=8*60*60*1000; // 8 ore
+
+const PIN={
+  get:()=>localStorage.getItem(PIN_KEY)||null,
+  set:(p)=>localStorage.setItem(PIN_KEY,p),
+  isSet:()=>!!localStorage.getItem(PIN_KEY),
+  // Session: store unlock timestamp
+  startSession:()=>localStorage.setItem(PIN_UNLOCKED_KEY,Date.now().toString()),
+  isSessionValid:()=>{
+    const t=localStorage.getItem(PIN_UNLOCKED_KEY);
+    if(!t)return false;
+    return (Date.now()-parseInt(t))<SESSION_DURATION;
+  },
+  clearSession:()=>localStorage.removeItem(PIN_UNLOCKED_KEY),
+};
+
+const AUTH={
+  unlocked:PIN.isSessionValid(),
+  // States: 'lock' | 'setup' | 'setup_confirm' | 'change_old' | 'change_new' | 'change_confirm'
+  mode: PIN.isSet() ? (PIN.isSessionValid()?'unlocked':'lock') : 'setup',
+  input:'',
+  setupFirst:'',
+  error:'',
+  shake:false,
+};
+
+function pinPress(d){
+  if(AUTH.input.length>=4)return;
+  AUTH.input+=d;
+  AUTH.error='';
+  renderPin();
+  if(AUTH.input.length===4) setTimeout(pinSubmit,120);
+}
+
+function pinDel(){
+  if(!AUTH.input.length)return;
+  AUTH.input=AUTH.input.slice(0,-1);
+  AUTH.error='';
+  renderPin();
+}
+
+function pinShake(){
+  AUTH.shake=true;renderPin();
+  setTimeout(()=>{AUTH.shake=false;renderPin();},400);
+}
+
+function pinSubmit(){
+  const val=AUTH.input;
+  AUTH.input='';
+
+  if(AUTH.mode==='lock'){
+    if(val===PIN.get()){
+      AUTH.unlocked=true;
+      AUTH.mode='unlocked';
+      PIN.startSession();
+      render();
+    } else {
+      AUTH.error='PIN errato. Riprova.';
+      pinShake();
+    }
+
+  } else if(AUTH.mode==='setup'){
+    AUTH.setupFirst=val;
+    AUTH.mode='setup_confirm';
+    renderPin();
+
+  } else if(AUTH.mode==='setup_confirm'){
+    if(val===AUTH.setupFirst){
+      PIN.set(val);
+      AUTH.unlocked=true;
+      AUTH.mode='unlocked';
+      AUTH.setupFirst='';
+      PIN.startSession();
+      render();
+    } else {
+      AUTH.error='I PIN non corrispondono. Riprova.';
+      AUTH.mode='setup';
+      AUTH.setupFirst='';
+      pinShake();
+    }
+
+  } else if(AUTH.mode==='change_old'){
+    if(val===PIN.get()){
+      AUTH.mode='change_new';
+      renderPin();
+    } else {
+      AUTH.error='PIN attuale errato.';
+      pinShake();
+    }
+
+  } else if(AUTH.mode==='change_new'){
+    AUTH.setupFirst=val;
+    AUTH.mode='change_confirm';
+    renderPin();
+
+  } else if(AUTH.mode==='change_confirm'){
+    if(val===AUTH.setupFirst){
+      PIN.set(val);
+      AUTH.mode='unlocked';
+      AUTH.setupFirst='';
+      S.modal=null;
+      render();
+    } else {
+      AUTH.error='I PIN non corrispondono.';
+      AUTH.mode='change_new';
+      AUTH.setupFirst='';
+      pinShake();
+    }
+  }
+}
+
+function lockApp(){
+  AUTH.unlocked=false;
+  AUTH.mode='lock';
+  AUTH.input='';
+  AUTH.error='';
+  PIN.clearSession();
+  render();
+}
+
+// Keyboard support for PIN
+document.addEventListener('keydown',(e)=>{
+  if(AUTH.mode==='unlocked')return;
+  if(e.key>='0'&&e.key<='9')pinPress(e.key);
+  else if(e.key==='Backspace')pinDel();
+});
+
+function buildPinScreen(){
+  const scr=el('div',{className:'pin-screen'});
+  scr.appendChild(el('div',{className:'pin-logo'},'🔐'));
+
+  let title='',sub='';
+  if(AUTH.mode==='lock'){title='Sblocca app';sub='Inserisci il tuo PIN per accedere';}
+  else if(AUTH.mode==='setup'){title='Crea PIN';sub='Scegli un PIN a 4 cifre per proteggere l\'app';}
+  else if(AUTH.mode==='setup_confirm'){title='Conferma PIN';sub='Reinserisci il PIN per confermarlo';}
+  else if(AUTH.mode==='change_old'){title='Cambia PIN';sub='Inserisci il PIN attuale';}
+  else if(AUTH.mode==='change_new'){title='Nuovo PIN';sub='Scegli un nuovo PIN a 4 cifre';}
+  else if(AUTH.mode==='change_confirm'){title='Conferma nuovo PIN';sub='Reinserisci il nuovo PIN';}
+
+  scr.appendChild(el('div',{className:'pin-title'},title));
+  scr.appendChild(el('div',{className:'pin-sub'},sub));
+
+  const dots=el('div',{className:'pin-dots'+(AUTH.shake?' shake':'')});
+  for(let i=0;i<4;i++)dots.appendChild(el('div',{className:'pin-dot'+(i<AUTH.input.length?' filled':'')}));
+  scr.appendChild(dots);
+
+  const grid=el('div',{className:'pin-grid'});
+  [1,2,3,4,5,6,7,8,9].forEach(n=>{
+    grid.appendChild(el('button',{className:'pin-key',onClick:()=>pinPress(String(n))},String(n)));
+  });
+  // bottom row: empty, 0, del
+  grid.appendChild(el('div',{})); // spacer — zero is in middle
+  const zeroBtn=el('button',{className:'pin-key zero',onClick:()=>pinPress('0')},'0');
+  grid.appendChild(zeroBtn);
+  grid.appendChild(el('button',{className:'pin-key del',onClick:()=>pinDel()},'⌫'));
+  scr.appendChild(grid);
+
+  const errEl=el('div',{className:'pin-error'},AUTH.error||'');
+  scr.appendChild(errEl);
+
+  if(AUTH.mode==='setup'){
+    scr.appendChild(el('div',{className:'pin-setup-note'},'Il PIN viene salvato solo su questo dispositivo.\nPotrai cambiarlo in qualsiasi momento.'));
+  }
+
+  return scr;
+}
+
+function renderPin(){
+  const existing=document.getElementById('pin-overlay');
+  const newNode=buildPinScreen();
+  newNode.id='pin-overlay';
+  if(existing)existing.replaceWith(newNode);
+  else document.body.appendChild(newNode);
+}
+
+// ── CHANGE PIN FLOW (in-modal) ───────────────────────────
+function buildChangePinModal(){
+  const m=el('div',{className:'modal',onClick:e=>e.stopPropagation()});
+  m.appendChild(el('div',{className:'modal-handle'}));
+  m.appendChild(el('div',{className:'modal-title'},'Cambia PIN'));
+
+  let title='',sub='';
+  if(AUTH.mode==='change_old'){title='PIN attuale';sub='Inserisci il PIN attuale';}
+  else if(AUTH.mode==='change_new'){title='Nuovo PIN';sub='Scegli un nuovo PIN a 4 cifre';}
+  else if(AUTH.mode==='change_confirm'){title='Conferma nuovo PIN';sub='Reinserisci il nuovo PIN';}
+
+  const wrap=el('div',{className:'change-pin-wrap'});
+  wrap.appendChild(el('div',{style:'font-size:14px;color:var(--tx-s);margin-bottom:4px'},sub));
+
+  const dots=el('div',{className:'change-pin-dots'+(AUTH.shake?' shake':'')});
+  for(let i=0;i<4;i++)dots.appendChild(el('div',{className:'pin-dot'+(i<AUTH.input.length?' filled':'')}));
+  wrap.appendChild(dots);
+
+  const grid=el('div',{className:'change-pin-grid'});
+  [1,2,3,4,5,6,7,8,9].forEach(n=>{
+    grid.appendChild(el('button',{className:'pin-key',onClick:()=>pinPress(String(n))},String(n)));
+  });
+  grid.appendChild(el('div',{}));
+  grid.appendChild(el('button',{className:'pin-key zero',onClick:()=>pinPress('0')},'0'));
+  grid.appendChild(el('button',{className:'pin-key del',onClick:()=>pinDel()},'⌫'));
+  wrap.appendChild(grid);
+
+  if(AUTH.error)wrap.appendChild(el('div',{className:'pin-error'},AUTH.error));
+  m.appendChild(wrap);
+
+  m.appendChild(el('button',{className:'btn btn-sm',style:'margin-top:16px;width:100%',onClick:()=>{
+    S.modal=null;AUTH.mode='unlocked';AUTH.input='';AUTH.error='';AUTH.setupFirst='';render();
+  }},'Annulla'));
+
+  return m;
+}
+
 const S={
   view:'tickets',filter:'all',selTicket:null,
   calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),
@@ -206,7 +477,6 @@ async function initMsal(){
     cache:{cacheLocation:'localStorage',storeAuthStateInCookie:true}
   });
   await msalApp.initialize();
-  // handle redirect response (after login redirect)
   const resp=await msalApp.handleRedirectPromise();
   if(resp&&resp.account){
     S.msUser=resp.account.username;
@@ -222,7 +492,6 @@ async function initMsal(){
 async function msLogin(){
   if(!msalApp)return;
   try{
-    // try popup first, fall back to redirect
     const resp=await msalApp.loginPopup({scopes:MS_SCOPES});
     S.msUser=resp.account.username;S.msReady=true;
     fetchOutlookEvents();
@@ -264,7 +533,6 @@ async function fetchOutlookEvents(){
     });
     S.msError=null;
   }catch(e){
-    // try interactive if silent fails
     try{
       const token=await msalApp.acquireTokenPopup({scopes:MS_SCOPES});
       S.msSyncing=false;fetchOutlookEvents();return;
@@ -331,6 +599,18 @@ function el(tag,props,...kids){
 }
 
 function render(){
+  // If not unlocked, show PIN screen
+  if(AUTH.mode!=='unlocked'){
+    document.getElementById('app').innerHTML='';
+    const overlay=buildPinScreen();
+    overlay.id='pin-overlay';
+    document.getElementById('app').appendChild(overlay);
+    return;
+  }
+  // Remove any pin overlay
+  const old=document.getElementById('pin-overlay');
+  if(old)old.remove();
+
   document.getElementById('app').innerHTML='';
   document.getElementById('app').appendChild(buildApp());
 }
@@ -345,7 +625,13 @@ function buildApp(){
   if(S.view==='tickets'){main.appendChild(buildSidebar());main.appendChild(buildTickets());}
   else main.appendChild(buildCalendar());
   w.appendChild(main);
-  if(S.modal)w.appendChild(buildModal());
+  if(S.modal==='changePin'){
+    const bg=el('div',{className:'modal-bg',onClick:()=>{S.modal=null;AUTH.mode='unlocked';AUTH.input='';AUTH.error='';AUTH.setupFirst='';render()}});
+    bg.appendChild(buildChangePinModal());
+    w.appendChild(bg);
+  } else if(S.modal){
+    w.appendChild(buildModal());
+  }
   return w;
 }
 
@@ -365,6 +651,10 @@ function buildTopbar(){
   });
   right.appendChild(tabs);
   right.appendChild(el('button',{className:'btn btn-primary btn-sm',onClick:()=>{S.modal=S.view==='tickets'?'newTicket':'newEvent';render()}},'+ Nuovo'));
+  // Lock button
+  right.appendChild(el('button',{className:'btn btn-sm',style:'font-size:13px',title:'Blocca app',onClick:lockApp},'🔒'));
+  // Change PIN button
+  right.appendChild(el('button',{className:'btn btn-sm',style:'font-size:11px',onClick:()=>{S.modal='changePin';AUTH.mode='change_old';AUTH.input='';AUTH.error='';render()}},'PIN'));
   b.appendChild(right);
   return b;
 }
@@ -504,7 +794,6 @@ function buildCalendar(){
     grid.appendChild(el('div',{className:'cal-day'+(isToday?' today':isSel&&!isToday?' sel':'')+(hasEv?' has-ev':''),onClick:()=>{S.selDate=ds;render();}},String(d)));
   }
   calCard.appendChild(grid);
-  // legend
   const leg=el('div',{className:'legend'});
   [['#E24B4A','Locali'],['#0078D4','Outlook']].forEach(([col,lbl])=>{
     const item=el('div',{className:'legend-item'});
@@ -604,9 +893,37 @@ function buildEventForm(f,onSave,onCancel){
 }
 
 // ── INIT ─────────────────────────────────────────────────
-loadAll();
-subscribeRealtime();
-initMsal();
+render(); // show PIN or app immediately
+if(AUTH.mode==='unlocked'){
+  loadAll();
+  subscribeRealtime();
+  initMsal();
+} else {
+  // Load data in background after unlock (attach to unlock)
+  const origLock=lockApp;
+  // Start data load after first unlock
+  const _origPinSubmit=pinSubmit;
+}
+
+// Patch: after unlock, init data
+const _originalPinSubmit=pinSubmit;
+window._postUnlock=function(){
+  loadAll();
+  subscribeRealtime();
+  initMsal();
+};
+
+// Override pinSubmit to trigger post-unlock init
+(function(){
+  const orig=pinSubmit;
+  pinSubmit=function(){
+    const wasBefore=AUTH.mode;
+    orig();
+    if(wasBefore!=='unlocked'&&AUTH.mode==='unlocked'){
+      window._postUnlock();
+    }
+  };
+})();
 </script>
 </body>
 </html>
