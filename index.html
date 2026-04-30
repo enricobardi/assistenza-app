@@ -857,23 +857,31 @@ function buildModal(){
     const intro=el('div',{style:'font-size:14px;color:var(--tx-s);margin-bottom:16px;line-height:1.5'});
     intro.appendChild(document.createTextNode('Aggiungi una nota con la soluzione adottata (opzionale).'));
     m.appendChild(intro);
-    let solutionNote='';
     const nr=el('div',{className:'form-row'});
     nr.appendChild(el('label',{},'Note soluzione'));
     const ta=el('textarea',{placeholder:'Descrivi come è stato risolto il problema...',style:'min-height:100px'});
-    // Pre-fill with existing note if present
     ta.value=t.note_soluzione||'';
-    ta.addEventListener('input',()=>solutionNote=ta.value);
     nr.appendChild(ta);
     m.appendChild(nr);
+    const closeErrEl=el('div',{className:'error-bar',style:'display:none;margin-top:10px'});
+    m.appendChild(closeErrEl);
     const acts=el('div',{className:'form-actions'});
     acts.appendChild(el('button',{className:'btn',onClick:()=>{S.modal=null;render();}},'Annulla'));
-    acts.appendChild(el('button',{className:'btn btn-primary',onClick:async()=>{
-      const patch={stato:'done'};
-      if(solutionNote||ta.value)patch.note_soluzione=ta.value||solutionNote;
-      await sbUpdate('tickets',t.id,patch);
-      S.modal=null;S.selTicket=null;loadAll();
-    }},'✓ Chiudi ticket'));
+    const saveBtn=el('button',{className:'btn btn-primary'},('✓ Chiudi ticket'));
+    saveBtn.addEventListener('click',async()=>{
+      saveBtn.disabled=true;saveBtn.textContent='Salvataggio...';
+      try{
+        const nota=ta.value.trim();
+        const patch={stato:'done',note_soluzione:nota||null};
+        await sbUpdate('tickets',t.id,patch);
+        S.modal=null;S.selTicket=null;loadAll();
+      }catch(e){
+        closeErrEl.textContent='Errore: '+e.message;
+        closeErrEl.style.display='block';
+        saveBtn.disabled=false;saveBtn.textContent='✓ Chiudi ticket';
+      }
+    });
+    acts.appendChild(saveBtn);
     m.appendChild(acts);
   }else{
     const t=S.modalTicket;
